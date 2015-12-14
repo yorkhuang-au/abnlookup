@@ -1,3 +1,4 @@
+
 import urllib.request as req
 
 #Search parameters for ABRSearchByNameSimpleProtocol service
@@ -17,7 +18,15 @@ WA = ''
 NT = ''
 QLD = ''
 TAS = ''
-authenticationGuid = ''		#Your GUID should go here
+authenticationGuid = 'f65308c5-30a5-4a5f-8fd7-29b997325deb'		#Your GUID should go here
+
+proxy = req.ProxyHandler({'http': r'http://operyhg:Qyy2003Hyf@10.150.17.10:3128'})
+auth = req.HTTPBasicAuthHandler()
+opener = req.build_opener(proxy, auth, req.HTTPHandler)
+req.install_opener(opener)
+#conn = req.urlopen('http://google.com')
+#return_str = conn.read()
+
 
 #Constructs the URL by inserting the search parameters specified above
 #GETs the url (using urllib.request.urlopen)
