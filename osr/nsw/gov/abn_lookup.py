@@ -1,48 +1,105 @@
 
 import urllib.request as req
+#from xml.etree import ElementTree
+from xml.etree.ElementTree import XML
+import threading
+import datetime
+from multiprocessing import Pool
 
-#Search parameters for ABRSearchByNameSimpleProtocol service
-#Note, this service requires all parameters to be specified, even if you specify no query parameter
-#The parameters specified below will search for an entity with  the name 'coles' with postcode '2250'
-#In this case, unspecified search parameters all default to 'Y'
-#(i.e. will search for the legal & trading name 'coles' in all States and Territories
-name = 'coles'
-postcode = '2250'
-legalName = ''
-tradingName = ''
-NSW = ''
-SA = ''
-ACT = ''
-VIC = ''
-WA = ''
-NT = ''
-QLD = ''
-TAS = ''
-authenticationGuid = 'f65308c5-30a5-4a5f-8fd7-29b997325deb'		#Your GUID should go here
+#from twisted.internet import reactor, protocol
 
-proxy = req.ProxyHandler({'http': r'http://operyhg:Qyy2003Hyf@10.150.17.10:3128'})
-auth = req.HTTPBasicAuthHandler()
-opener = req.build_opener(proxy, auth, req.HTTPHandler)
-req.install_opener(opener)
-#conn = req.urlopen('http://google.com')
-#return_str = conn.read()
+class ABNLookUpThread(threading.Thread):
+	def __init__(self, counter):
+		threading.Thread.__init__(self)
+		self.counter = counter
 
+	def run(self):
+		name = 'coles'
+		postcode = '2250'
+		legalName = ''
+		tradingName = ''
+		NSW = ''
+		SA = ''
+		ACT = ''
+		VIC = ''
+		WA = ''
+		NT = ''
+		QLD = ''
+		TAS = ''
+		authenticationGuid = 'f65308c5-30a5-4a5f-8fd7-29b997325deb'		#Your GUID should go here
 
-#Constructs the URL by inserting the search parameters specified above
-#GETs the url (using urllib.request.urlopen)
-conn = req.urlopen('http://abr.business.gov.au/abrxmlsearchRPC/AbrXmlSearch.asmx/' +
-					'ABRSearchByNameSimpleProtocol?name=' + name +
-					'&postcode=' + postcode + '&legalName=' + legalName +
-					'&tradingName=' + tradingName + '&NSW=' + NSW +
-					'&SA=' + SA + '&ACT=' + ACT + '&VIC=' +  VIC +
-					'&WA=' + WA + '&NT=' + NT + '&QLD=' + QLD +
-					'&TAS=' + TAS + '&authenticationGuid=' + authenticationGuid)
+		proxy = req.ProxyHandler({'http': r'http://operyhg:Qyy2003Hyf@10.150.17.10:3128'})
+		auth = req.HTTPBasicAuthHandler()
+		opener = req.build_opener(proxy, auth, req.HTTPHandler)
+		req.install_opener(opener)
+		for j in range(10):
+			conn = req.urlopen('http://abr.business.gov.au/abrxmlsearchRPC/AbrXmlSearch.asmx/' +
+								'ABRSearchByNameSimpleProtocol?name=' + name +
+								'&postcode=' + postcode + '&legalName=' + legalName +
+								'&tradingName=' + tradingName + '&NSW=' + NSW +
+								'&SA=' + SA + '&ACT=' + ACT + '&VIC=' +  VIC +
+								'&WA=' + WA + '&NT=' + NT + '&QLD=' + QLD +
+								'&TAS=' + TAS + '&authenticationGuid=' + authenticationGuid)
 
-#XML is returned by the webservice
-#Put returned xml into variable 'returnedXML'
-#Output xml string to file 'output.xml' and print to console
-returnedXML = conn.read()
-f = open('output.xml', 'wb')
-f.write(returnedXML)
-f.close
-print(returnedXML)
+			#XML is returned by the webservice
+			#Put returned xml into variable 'returnedXML'
+			#Output xml string to file 'output.xml' and print to console
+			returnedXML = conn.read()
+			ele = XML(returnedXML)
+			print(self.counter)
+			print(j)
+			print(ele)
+
+def lookup(c):
+	name = 'coles'
+	postcode = '2250'
+	legalName = ''
+	tradingName = ''
+	NSW = ''
+	SA = ''
+	ACT = ''
+	VIC = ''
+	WA = ''
+	NT = ''
+	QLD = ''
+	TAS = ''
+	authenticationGuid = 'f65308c5-30a5-4a5f-8fd7-29b997325deb'		#Your GUID should go here
+
+	proxy = req.ProxyHandler({'http': r'http://operyhg:Qyy2003Hyf@10.150.17.10:3128'})
+	auth = req.HTTPBasicAuthHandler()
+	opener = req.build_opener(proxy, auth, req.HTTPHandler)
+	req.install_opener(opener)
+	for j in range(10):
+		conn = req.urlopen('http://abr.business.gov.au/abrxmlsearchRPC/AbrXmlSearch.asmx/' +
+							'ABRSearchByNameSimpleProtocol?name=' + name +
+							'&postcode=' + postcode + '&legalName=' + legalName +
+							'&tradingName=' + tradingName + '&NSW=' + NSW +
+							'&SA=' + SA + '&ACT=' + ACT + '&VIC=' +  VIC +
+							'&WA=' + WA + '&NT=' + NT + '&QLD=' + QLD +
+							'&TAS=' + TAS + '&authenticationGuid=' + authenticationGuid)
+
+		#XML is returned by the webservice
+		#Put returned xml into variable 'returnedXML'
+		#Output xml string to file 'output.xml' and print to console
+		returnedXML = conn.read()
+		ele = XML(returnedXML)
+		print(c)
+		print(j)
+		print(ele)
+
+print(datetime.datetime.now())
+ths = []
+for i in range(100):
+	t = ABNLookUpThread(i)
+	t.start()
+	ths.append(t)
+
+for th in ths:
+	th.join()
+print(datetime.datetime.now())
+
+#if __name__ == '__main__':
+#	print(datetime.datetime.now())
+#	pool = Pool( processes=100)
+#	pool.map(lookup, range(100))
+#	print(datetime.datetime.now())
